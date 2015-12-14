@@ -76,6 +76,8 @@ class HTTPParser {
         throw HTTPParserError.Internal
     }
 
+    print("[worker] Read headers: \(headers)")
+
     return (headers, result.bottom)
   }
 
@@ -84,6 +86,7 @@ class HTTPParser {
   }
 
   func parse() throws -> RequestType {
+    print("[worker] Parsing request")
     let (top, startOfBody) = try readHeaders()
     var components = top.split("\r\n")
     let requestLine = components.removeFirst()
@@ -105,6 +108,7 @@ class HTTPParser {
     var request = Request(method: method, path: path, headers: parseHeaders(components))
 
     if let contentLength = request.contentLength {
+      print("[worker] Reading body for content length: \(contentLength)")
       let remainingContentLength = contentLength - startOfBody.count
       let bodyBytes = startOfBody + (try readBody(maxLength: remainingContentLength))
       request.body = parseBody(bodyBytes, contentLength: contentLength)
