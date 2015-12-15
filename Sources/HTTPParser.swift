@@ -45,12 +45,14 @@ class HTTPParser {
       let nextSize = predicate(buffer)
       guard nextSize > 0 else { break }
 
+      print("[worker] Trying to read \(nextSize) bytes")
       let bytes = try socket.read(nextSize)
-      guard !bytes.isEmpty else { break }
+      guard !bytes.isEmpty else { print("[worker] Read to EOF"); break }
 
       buffer += bytes
     }
 
+    print("[worker] Done reading")
     return buffer
   }
 
@@ -114,6 +116,7 @@ class HTTPParser {
       request.body = parseBody(bodyBytes, contentLength: contentLength)
     }
 
+    print("[worker] Done parsing request \(request)")
     return request
   }
 
